@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 )
 
-// CountAminoAcids counts the occurrences of each amino acid in the peptide
+// CountAminoAcids подсчитывает содержание каждой аминокислоты в пептидах
 func CountAminoAcids(peptide string) map[string]int {
 	counts := make(map[string]int)
 	for _, aa := range peptide {
@@ -20,8 +20,8 @@ func CountAminoAcids(peptide string) map[string]int {
 	return counts
 }
 
-// VisualizeAminoAcidDistribution creates a bar chart of amino acid frequencies and saves it to a file
-func VisualizeAminoAcidDistribution(peptide string) {
+// VisualizeAminoAcidDistribution создает гистограмму частот встречаемости аминокислот и сохраняет ее в файл
+func VisualizeAminoAcidDistribution(filename, peptide string) {
 	counts := CountAminoAcids(peptide)
 	p := plot.New()
 
@@ -46,7 +46,7 @@ func VisualizeAminoAcidDistribution(peptide string) {
 	p.NominalX(labels...)
 
 	outputDir := "output"
-	outputFile := filepath.Join(outputDir, "amino_acid_distribution.png")
+	outputFile := filepath.Join(outputDir, filename)
 
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		log.Fatalf("Не удалось создать директорию: %v", err)
