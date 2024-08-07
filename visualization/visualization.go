@@ -1,6 +1,7 @@
 package visualization
 
 import (
+	"dna-analyzer/biosynthesis"
 	"fmt"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -33,7 +34,7 @@ func VisualizeAminoAcidDistribution(peptide string) {
 	i := 0
 	for aa, count := range counts {
 		bars[i] = float64(count)
-		labels[i] = aa
+		labels[i] = biosynthesis.AminoAcidNames[aa]
 		i++
 	}
 

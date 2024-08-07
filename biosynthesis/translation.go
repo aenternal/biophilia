@@ -24,6 +24,15 @@ var CodonTable = map[string]string{
 	"GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G",
 }
 
+var AminoAcidNames = map[string]string{
+	"F": "Фенилаланин", "L": "Лейцин", "I": "Изолейцин", "M": "Метионин",
+	"V": "Валин", "S": "Серин", "P": "Пролин", "T": "Треонин",
+	"A": "Аланин", "Y": "Тирозин", "*": "Стоп", "H": "Гистидин",
+	"Q": "Глутамин", "N": "Аспарагин", "K": "Лизин", "D": "Аспартат",
+	"E": "Глутамат", "C": "Цистеин", "W": "Триптофан", "R": "Аргинин",
+	"G": "Глицин",
+}
+
 // Translate converts mRNA to peptide sequence using the codon table
 func Translate(mrna string) string {
 	var peptide strings.Builder
