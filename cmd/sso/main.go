@@ -3,14 +3,21 @@ package main
 import (
 	"biophilia/internal/config"
 	"biophilia/internal/domain/services"
+	"biophilia/internal/repositories/database"
 	"biophilia/internal/repositories/storage"
 	"biophilia/internal/transport/http/rest"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"log/slog"
 	"os"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+)
+
+const (
+	envLocal = "local"
+	envDev   = "dev"
+	envProd  = "prod"
 )
 
 func main() {
@@ -35,27 +42,32 @@ func main() {
 
 	logger.Info("Successfully connected to MinIO")
 
+	// Инициализация БД
+	db, err := sqlx.Connect("postgres", cfg.DbDSN())
+	if err != nil {
+		panic("Failed to connect to the database: " + err.Error())
+	}
+	err = db.Ping()
+	if err != nil {
+		panic("Failed to ping the database: " + err.Error())
+	}
+
+	// Инициализация БД-репозитория
+	dbRepo := database.NewBiomoleculeRepository(db)
+
 	// Инициализация сервиса
-	biomoleculeService := services.NewBiomoleculeService(minioRepo)
+	biomoleculeService := services.NewBiomoleculeService(logger, dbRepo, minioRepo)
 
 	// Инициализация Echo
 	e := echo.New()
-
-	// Заменим Echo логгер на slog
-	e.Logger.SetOutput(logger.Writer()) // Используем writer slog для вывода логов Echo
-
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Output: logger.Writer(), // Логи запросов через slog
-	}))
-	e.Use(middleware.Recover())
 
 	// Инициализация маршрутов
 	rest.InitRoutes(e, biomoleculeService)
 
 	// Запуск сервера
-	logger.InfoContext(ctx, "Starting server on port :8080")
+	logger.Info("Starting server on port :8080")
 	if err := e.Start(":8080"); err != nil {
-		logger.ErrorContext(ctx, "Failed to start server", "error", err)
+		logger.Error("Failed to start server", "error", err)
 	}
 }
 

@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"os"
 )
@@ -23,6 +24,17 @@ type Config struct {
 	StorageBucket      string `env:"STORAGE_BUCKET" envDefault:"biophilia"`
 	StorageUrl         string `env:"STORAGE_URL" envDefault:"http://localhost:9000"`
 	MigrationsPath     string `env:"MIGRATIONS_PATH" envDefault:""`
+}
+
+func (cfg *Config) DbDSN() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.PostgresUser,
+		cfg.PostgresPassword,
+		cfg.PostgresHost,
+		cfg.PostgresPort,
+		cfg.PostgresDBName,
+	)
 }
 
 func MustLoad() *Config {
