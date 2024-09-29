@@ -29,15 +29,15 @@ type Biomolecule struct {
 }
 
 type AddBiomoleculeRequest struct {
-	Type        BiomoleculeType `json:"type"`
-	Name        string          `json:"name"`
-	Sequence    string          `json:"sequence"`
-	Description string          `json:"description"`
+	Name        string `db:"name" json:"name" example:"Hemoglobin"`
+	Type        string `db:"type" json:"type" example:"protein"`
+	Sequence    string `db:"sequence" json:"sequence" example:"MVHLTPEEKSA"`
+	Description string `db:"description" json:"description" example:"Essential for oxygen presentation"`
 }
 
 type UpdateBiomoleculeRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `db:"name" json:"name" example:"Hemoglobin"`
+	Description string `db:"description" json:"description" example:"Essential for oxygen presentation"`
 }
 
 func CodonTable() map[string]string {

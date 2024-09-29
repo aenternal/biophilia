@@ -7,19 +7,19 @@ type SearchRequest struct {
 }
 
 type BlastRequest struct {
-	Program  string `json:"program"`
-	Database string `json:"database"`
-	Sequence string `json:"sequence"`
-	SType    string `json:"stype"`
-	Email    string `json:"email"`
+	Program  string          `json:"program"`
+	Database string          `json:"database"`
+	Sequence string          `json:"sequence"`
+	SType    BiomoleculeType `json:"stype"`
+	Email    string          `json:"email"`
 }
 
-func NewBlastRequest(sequence string) BlastRequest {
+func NewBlastRequest(sequence, database string, sType BiomoleculeType) BlastRequest {
 	return BlastRequest{
 		Program:  "blastn",
 		Database: "ipdmhcgen",
 		Sequence: sequence,
-		SType:    "dna",
+		SType:    sType,
 		Email:    "mhc@alleles.org",
 	}
 }

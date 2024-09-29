@@ -19,8 +19,8 @@ func NewBiomoleculeRepository(db *sqlx.DB) *SQLXBiomoleculeRepository {
 
 func (r *SQLXBiomoleculeRepository) Add(biomolecule entities.AddBiomoleculeRequest) error {
 	query := `
-		INSERT INTO biomolecules (type, name, sequence, description, created_at, updated_at)
-		VALUES (:type, :name, :sequence, :description, NOW(), NOW())`
+		INSERT INTO biomolecules (type, name, sequence, description)
+		VALUES (:type, :name, :sequence, :description)`
 
 	_, err := r.db.NamedExec(query, biomolecule)
 	if err != nil {

@@ -2,23 +2,46 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"io"
 )
+
+func createBucketIfNotExists(client *minio.Client, bucket string) error {
+	ctx := context.Background()
+
+	exists, err := client.BucketExists(ctx, bucket)
+	if err != nil {
+		return fmt.Errorf("failed to check if bucket exists: %w", err)
+	}
+
+	if !exists {
+		err = client.MakeBucket(ctx, bucket, minio.MakeBucketOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to create bucket: %w", err)
+		}
+	}
+	return nil
+}
 
 type MinioRepository struct {
 	client *minio.Client
 	bucket string
 }
 
-func NewMinioRepository(endpoint, accessKey, secretKey, bucket string, useSSL bool) (*MinioRepository, error) {
+func NewMinioRepository(endpoint, minioUser, minioPassword, bucket string, useSSL bool) (*MinioRepository, error) {
 	client, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Creds:  credentials.NewStaticV4(minioUser, minioPassword, ""),
 		Secure: useSSL,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create minio client: %w", err)
+	}
+
+	err = createBucketIfNotExists(client, bucket)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create bucket: %w", err)
 	}
 
 	return &MinioRepository{

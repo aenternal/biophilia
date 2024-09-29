@@ -1,39 +1,24 @@
-package network
+package clients
 
 import (
 	"biophilia/internal/domain/entities"
-	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"strings"
 	"time"
 )
 
-type EBIBlastRepository struct {
+type EBIBlastClient struct {
 }
 
-func NewEBIBlastRepository() *EBIBlastRepository {
-	return &EBIBlastRepository{}
+func NewEBIBlastClient() *EBIBlastClient {
+	return &EBIBlastClient{}
 }
 
-func (blast *EBIBlastRepository) Search(sequence, searchType, database string) (string, error) {
+func (blast *EBIBlastClient) Search(sequence, database string, searchType entities.BiomoleculeType) (string, error) {
 	client := resty.New()
-	blastRequest := entities.BlastRequest{
-		Program:  "blastn",
-		Database: "ipdmhcgen",
-		Sequence: sequence,
-		SType:    "dna",
-		Email:    "mhc@alleles.org",
-	}
-	var formData map[string]interface{}
-	data, err := json.Marshal(blastRequest)
-	if err != nil {
-		return "", err
-	}
-	err = json.Unmarshal(data, &formData)
-	if err != nil {
-		return "", err
-	}
+	blastRequest := entities.NewBlastRequest(sequence, database, searchType)
+
 	resp, err := client.R().
 		SetFormData(blastRequest.Map()).
 		Post("https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/run/")
@@ -49,7 +34,7 @@ func (blast *EBIBlastRepository) Search(sequence, searchType, database string) (
 	return jobID, nil
 }
 
-func (blast *EBIBlastRepository) GetSearchResults(jobID string) (string, error) {
+func (blast *EBIBlastClient) GetSearchResults(jobID string) (string, error) {
 	client := resty.New()
 	for {
 		time.Sleep(10 * time.Second)

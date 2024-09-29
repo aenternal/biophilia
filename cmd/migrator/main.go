@@ -1,7 +1,7 @@
 package main
 
 import (
-	"biophilia/internal/config"
+	"biophilia/internal/infrastructure/config"
 	"errors"
 	"flag"
 	"fmt"
