@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"biophilia/internal/domain/entities"
 	"biophilia/internal/domain/services"
+	"biophilia/internal/presentation/http/rest/entities/requests"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -25,10 +25,10 @@ func NewBiomoleculeHandler(service *services.BiomoleculeService) *BiomoleculeHan
 //	@Accept  json
 //	@Produce  json
 //	@Param biomolecule body entities.AddBiomoleculeRequest true "Biomolecule to create"
-//	@Success 201 {object} entities.Biomolecule
+//	@Success 201 {object} responses.Biomolecule
 //	@Router /biomolecules [post]
 func (h *BiomoleculeHandler) AddBiomolecule(c echo.Context) error {
-	var biomoleculeRequest entities.AddBiomoleculeRequest
+	var biomoleculeRequest requests.AddBiomoleculeRequest
 	if err := c.Bind(biomoleculeRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -42,7 +42,7 @@ func (h *BiomoleculeHandler) AddBiomolecule(c echo.Context) error {
 //	@Tags biomolecules
 //	@Accept  json
 //	@Produce  json
-//	@Success 200 {object} []entities.Biomolecule
+//	@Success 200 {object} []responses.Biomolecule
 //	@Router /biomolecules [get]
 func (h *BiomoleculeHandler) GetBiomolecules(c echo.Context) error {
 	return c.String(http.StatusOK, "List of biomolecules")
@@ -56,7 +56,7 @@ func (h *BiomoleculeHandler) GetBiomolecules(c echo.Context) error {
 //	@Accept  json
 //	@Produce  json
 //	@Param id path int true "Biomolecule ID"
-//	@Success 200 {object} entities.Biomolecule
+//	@Success 200 {object} responses.Biomolecule
 //	@Router /biomolecules/{id} [get]
 func (h *BiomoleculeHandler) GetBiomoleculeByID(c echo.Context) error {
 	return c.String(http.StatusOK, "Biomolecule by ID")
@@ -71,7 +71,7 @@ func (h *BiomoleculeHandler) GetBiomoleculeByID(c echo.Context) error {
 //	@Produce  json
 //	@Param id path int true "Biomolecule ID"
 //	@Param biomolecule body entities.UpdateBiomoleculeRequest true "Biomolecule to create"
-//	@Success 200 {object} entities.Biomolecule
+//	@Success 200 {object} responses.Biomolecule
 //	@Router /biomolecules/{id} [put]
 func (h *BiomoleculeHandler) UpdateBiomolecule(c echo.Context) error {
 	return c.String(http.StatusOK, "Biomolecule updated")

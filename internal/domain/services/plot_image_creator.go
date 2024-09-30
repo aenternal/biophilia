@@ -2,7 +2,7 @@ package services
 
 import (
 	"biophilia/internal/domain/entities"
-	"biophilia/internal/domain/interfaces"
+	"biophilia/internal/domain/interfaces/domain"
 	"bytes"
 	"fmt"
 	"gonum.org/v1/plot"
@@ -19,45 +19,88 @@ type PlotImageService struct {
 	log *slog.Logger
 }
 
-func NewPlotImageService(log *slog.Logger) interfaces.ImageService {
+func NewPlotImageService(log *slog.Logger) domain.ImageService {
 	return &PlotImageService{log: log}
 }
 
-func (service *PlotImageService) VisualizeDistribution(aminoAcidCounts map[string]int) (io.Reader, error) {
-	plotChart := plot.New()
-	plotChart.Title.Text = "Распределение аминокислот"
-	plotChart.X.Label.Text = "Аминокислота"
-	plotChart.Y.Label.Text = "Частота"
+func (service *PlotImageService) VisualizeAminoAcidDistribution(aminoAcidCounts map[string]int) (io.Reader, error) {
+	barValues, aminoAcidLabels := service.preparePlotData(aminoAcidCounts, entities.AminoAcidNames())
 
-	barValues := make(plotter.Values, len(aminoAcidCounts))
-	aminoAcidLabels := make([]string, len(aminoAcidCounts))
+	plotChart, err := service.createPlot(barValues, aminoAcidLabels, "Распределение аминокислот")
+	if err != nil {
+		return nil, service.logAndReturnError("Не удалось создать график", err)
+	}
+
+	imageBuffer, err := service.renderPlotToImage(plotChart)
+	if err != nil {
+		return nil, service.logAndReturnError("Не удалось отрисовать график", err)
+	}
+
+	return imageBuffer, nil
+}
+
+func (service *PlotImageService) VisualizeNucleotideDistribution(nucleotideCounts map[string]int) (io.Reader, error) {
+	barValues, nucleotideLabels := service.preparePlotData(nucleotideCounts, entities.NucleotideNames())
+
+	plotChart, err := service.createPlot(barValues, nucleotideLabels, "Распределение нуклеотидов")
+	if err != nil {
+		return nil, service.logAndReturnError("Не удалось создать график", err)
+	}
+
+	imageBuffer, err := service.renderPlotToImage(plotChart)
+	if err != nil {
+		return nil, service.logAndReturnError("Не удалось отрисовать график", err)
+	}
+
+	return imageBuffer, nil
+}
+
+func (service *PlotImageService) preparePlotData(counts map[string]int, names map[string]string) (plotter.Values, []string) {
+	barValues := make(plotter.Values, len(counts))
+	labels := make([]string, len(counts))
+
 	i := 0
-	for aminoAcid, count := range aminoAcidCounts {
+	for key, count := range counts {
 		barValues[i] = float64(count)
-		aminoAcidLabels[i] = entities.AminoAcidNames()[aminoAcid]
+		labels[i] = names[key]
 		i++
 	}
 
+	return barValues, labels
+}
+
+func (service *PlotImageService) createPlot(barValues plotter.Values, labels []string, title string) (*plot.Plot, error) {
+	plotChart := plot.New()
+	plotChart.Title.Text = title
+	plotChart.X.Label.Text = "Название"
+	plotChart.Y.Label.Text = "Частота"
+
 	barChart, err := plotter.NewBarChart(barValues, vg.Points(20))
 	if err != nil {
-		service.log.Error("Не удалось создать график: %v", err)
-		return nil, fmt.Errorf("не удалось создать график: %v", err)
+		return nil, err
 	}
 
 	plotChart.Add(barChart)
-	plotChart.NominalX(aminoAcidLabels...)
+	plotChart.NominalX(labels...)
 
+	return plotChart, nil
+}
+
+func (service *PlotImageService) renderPlotToImage(plotChart *plot.Plot) (*bytes.Buffer, error) {
 	imageCanvas := vgimg.New(8*vg.Inch, 4*vg.Inch)
 	drawingContext := draw.New(imageCanvas)
 
 	plotChart.Draw(drawingContext)
 
 	imageBuffer := new(bytes.Buffer)
-
 	if err := png.Encode(imageBuffer, imageCanvas.Image()); err != nil {
-		service.log.Error("Не удалось кодировать график в PNG: %v", err)
-		return nil, fmt.Errorf("не удалось кодировать график в PNG: %v", err)
+		return nil, err
 	}
 
 	return imageBuffer, nil
+}
+
+func (service *PlotImageService) logAndReturnError(message string, err error) error {
+	service.log.Error(fmt.Sprintf("%s: %v", message, err))
+	return fmt.Errorf("%s: %v", message, err)
 }

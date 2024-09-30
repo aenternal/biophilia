@@ -71,3 +71,7 @@ func AminoAcidNames() map[string]string {
 		"G": "Глицин",
 	}
 }
+
+func NucleotideNames() map[string]string {
+	return map[string]string{"A": "Аденин", "G": "Гуанин", "C": "Цитозин", "U": "Урацил", "T": "Тимин"}
+}

@@ -2,7 +2,8 @@ package services
 
 import (
 	"biophilia/internal/domain/entities"
-	"biophilia/internal/domain/interfaces"
+	"biophilia/internal/domain/interfaces/data"
+	"biophilia/internal/domain/interfaces/domain"
 	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"strings"
@@ -10,19 +11,19 @@ import (
 
 type BiomoleculeService struct {
 	log                   *slog.Logger
-	biomoleculeRepository interfaces.BiomoleculeRepository
-	storageRepository     interfaces.StorageRepository
-	imageService          interfaces.ImageService
-	blastRepository       interfaces.BlastClient
+	biomoleculeRepository data.BiomoleculeRepository
+	storageRepository     data.StorageRepository
+	imageService          domain.ImageService
+	blastRepository       data.BlastClient
 	redisClient           *redis.Client
 }
 
 func NewBiomoleculeService(
 	log *slog.Logger,
-	biomoleculeRepository interfaces.BiomoleculeRepository,
-	storageRepository interfaces.StorageRepository,
-	imageService interfaces.ImageService,
-	blastRepository interfaces.BlastClient,
+	biomoleculeRepository data.BiomoleculeRepository,
+	storageRepository data.StorageRepository,
+	imageService domain.ImageService,
+	blastRepository data.BlastClient,
 	redisClient *redis.Client,
 ) *BiomoleculeService {
 	return &BiomoleculeService{
@@ -77,10 +78,10 @@ func (_ *BiomoleculeService) translate(mrna string) string {
 	return peptide.String()
 }
 
-func countSequenceUnits(sequence string) map[string]int {
-	counts := make(map[string]int)
-	for _, aa := range sequence {
-		counts[string(aa)]++
-	}
-	return counts
-}
+//func countSequenceUnits(sequence string) map[string]int {
+//	counts := make(map[string]int)
+//	for _, aa := range sequence {
+//		counts[string(aa)]++
+//	}
+//	return counts
+//}

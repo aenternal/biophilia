@@ -1,4 +1,4 @@
-package interfaces
+package data
 
 import (
 	"biophilia/internal/domain/entities"

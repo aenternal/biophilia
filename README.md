@@ -1,5 +1,10 @@
-# dna-analyzer
+# Biophilia API
 
-Простой скрипт для анализа ДНК. Получает данные из EBI Blast.
+Бэкенд-часть приложения для работы с биомолекулами.
 
-Пример ввода: AGAGTTTGATCCTGGCTCAG (16S рРНК последовательность для E. coli)
+Для запуска:
+- Создайте файл .env в корневой директории проекта, используя .env.example, находящегося в директории env/local/docker/.env.example
+- Соберите и запустите приложение командой docker compose --env-file .env -f env/local/docker/docker-compose.yml up -d --build
+
+После успешного запуска Swagger можно найти по следующему маршруту:
+- http://localhost:8080/swagger/index.html

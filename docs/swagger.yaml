@@ -1,0 +1,167 @@
+basePath: /api/v1
+definitions:
+  entities.AddBiomoleculeRequest:
+    properties:
+      description:
+        example: Essential for oxygen presentation
+        type: string
+      name:
+        example: Hemoglobin
+        type: string
+      sequence:
+        example: MVHLTPEEKSA
+        type: string
+      type:
+        example: protein
+        type: string
+    type: object
+  entities.Biomolecule:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      sequence:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entities.UpdateBiomoleculeRequest:
+    properties:
+      description:
+        example: Essential for oxygen presentation
+        type: string
+      name:
+        example: Hemoglobin
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Biophilia API
+  version: 0.0.1
+paths:
+  /biomolecules:
+    get:
+      consumes:
+      - application/json
+      description: Get biomolecules
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Biomolecule'
+            type: array
+      summary: Get biomolecules
+      tags:
+      - biomolecules
+    post:
+      consumes:
+      - application/json
+      description: Create a new biomolecule in the database
+      parameters:
+      - description: Biomolecule to create
+        in: body
+        name: biomolecule
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AddBiomoleculeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Biomolecule'
+      summary: Create a new biomolecule
+      tags:
+      - biomolecules
+  /biomolecules/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete biomolecule
+      parameters:
+      - description: Biomolecule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete biomolecule
+      tags:
+      - biomolecules
+    get:
+      consumes:
+      - application/json
+      description: Get biomolecule by ID
+      parameters:
+      - description: Biomolecule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Biomolecule'
+      summary: Get biomolecule by ID
+      tags:
+      - biomolecules
+    put:
+      consumes:
+      - application/json
+      description: Update biomolecule
+      parameters:
+      - description: Biomolecule ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Biomolecule to create
+        in: body
+        name: biomolecule
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UpdateBiomoleculeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Biomolecule'
+      summary: Update biomolecule
+      tags:
+      - biomolecules
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
