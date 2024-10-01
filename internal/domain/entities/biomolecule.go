@@ -19,25 +19,26 @@ func (biomoleculeType BiomoleculeType) IsValid() bool {
 }
 
 type Biomolecule struct {
-	ID          int       `db:"id" json:"id"`
-	Type        string    `db:"type" json:"type"`
-	Name        string    `db:"name" json:"name"`
-	Sequence    string    `db:"sequence" json:"sequence"`
-	Description string    `db:"description" json:"description"`
-	CreatedAt   time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt   time.Time `db:"updated_at" json:"updatedAt"`
+	ID          int
+	Type        BiomoleculeType
+	Name        string
+	Sequence    string
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
-type AddBiomoleculeRequest struct {
-	Name        string `db:"name" json:"name" example:"Hemoglobin"`
-	Type        string `db:"type" json:"type" example:"protein"`
-	Sequence    string `db:"sequence" json:"sequence" example:"MVHLTPEEKSA"`
-	Description string `db:"description" json:"description" example:"Essential for oxygen presentation"`
+type AddBiomolecule struct {
+	Name        string
+	Type        BiomoleculeType
+	Sequence    string
+	Description string
 }
 
-type UpdateBiomoleculeRequest struct {
-	Name        string `db:"name" json:"name" example:"Hemoglobin"`
-	Description string `db:"description" json:"description" example:"Essential for oxygen presentation"`
+type UpdateBiomolecule struct {
+	Name        string
+	Sequence    string
+	Description string
 }
 
 func CodonTable() map[string]string {

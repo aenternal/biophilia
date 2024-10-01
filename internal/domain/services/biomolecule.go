@@ -36,7 +36,7 @@ func NewBiomoleculeService(
 	}
 }
 
-func (service *BiomoleculeService) AddBiomolecule(biomolecule entities.AddBiomoleculeRequest) error {
+func (service *BiomoleculeService) AddBiomolecule(biomolecule entities.AddBiomolecule) error {
 	return service.biomoleculeRepository.Add(biomolecule)
 }
 
@@ -48,7 +48,7 @@ func (service *BiomoleculeService) GetBiomoleculeByID(id int) (*entities.Biomole
 	return service.biomoleculeRepository.GetByID(id)
 }
 
-func (service *BiomoleculeService) UpdateBiomolecule(id int, biomolecule entities.UpdateBiomoleculeRequest) error {
+func (service *BiomoleculeService) UpdateBiomolecule(id int, biomolecule entities.UpdateBiomolecule) error {
 	return service.biomoleculeRepository.Update(id, biomolecule)
 }
 

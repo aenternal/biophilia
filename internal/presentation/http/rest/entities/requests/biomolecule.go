@@ -1,7 +1,7 @@
 package requests
 
 import (
-	"biophilia/internal/presentation/http/rest/entities"
+	"biophilia/internal/domain/entities"
 )
 
 type AddBiomoleculeRequest struct {

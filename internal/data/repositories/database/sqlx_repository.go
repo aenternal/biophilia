@@ -1,7 +1,9 @@
 package database
 
 import (
+	"biophilia/internal/data/repositories/database/models"
 	"biophilia/internal/domain/entities"
+	"biophilia/internal/infrastructure/mappers"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -17,21 +19,29 @@ func NewBiomoleculeRepository(db *sqlx.DB) *SQLXBiomoleculeRepository {
 	}
 }
 
-func (r *SQLXBiomoleculeRepository) Add(biomolecule entities.AddBiomoleculeRequest) error {
+func (r *SQLXBiomoleculeRepository) Add(biomolecule entities.AddBiomolecule) (*entities.Biomolecule, error) {
+	var createdBiomolecule models.Biomolecule
 	query := `
 		INSERT INTO biomolecules (type, name, sequence, description)
-		VALUES (:type, :name, :sequence, :description)`
+		VALUES (:type, :name, :sequence, :description) RETURNING *`
 
-	_, err := r.db.NamedExec(query, biomolecule)
+	err := r.db.Get(
+		&createdBiomolecule,
+		query,
+		biomolecule.Type,
+		biomolecule.Name,
+		biomolecule.Sequence,
+		biomolecule.Description,
+	)
 	if err != nil {
-		return fmt.Errorf("ошибка при добавлении биомолекулы: %w", err)
+		return nil, fmt.Errorf("ошибка при добавлении биомолекулы: %w", err)
 	}
 
-	return nil
+	return mappers.MapDatabaseBiomoleculeToDomain(createdBiomolecule), nil
 }
 
-func (r *SQLXBiomoleculeRepository) GetAll() ([]entities.Biomolecule, error) {
-	var biomolecules []entities.Biomolecule
+func (r *SQLXBiomoleculeRepository) GetAll() ([]*entities.Biomolecule, error) {
+	var biomolecules []models.Biomolecule
 
 	query := `SELECT * FROM biomolecules`
 
@@ -40,11 +50,11 @@ func (r *SQLXBiomoleculeRepository) GetAll() ([]entities.Biomolecule, error) {
 		return nil, fmt.Errorf("ошибка при получении всех биомолекул: %w", err)
 	}
 
-	return biomolecules, nil
+	return mappers.MapDatabaseBiomoleculesToDomain(biomolecules), nil
 }
 
 func (r *SQLXBiomoleculeRepository) GetByID(id int) (*entities.Biomolecule, error) {
-	var biomolecule entities.Biomolecule
+	var biomolecule models.Biomolecule
 
 	query := `SELECT * FROM biomolecules WHERE id = $1`
 
@@ -53,27 +63,30 @@ func (r *SQLXBiomoleculeRepository) GetByID(id int) (*entities.Biomolecule, erro
 		return nil, fmt.Errorf("ошибка при получении биомолекулы по ID: %w", err)
 	}
 
-	return &biomolecule, nil
+	return mappers.MapDatabaseBiomoleculeToDomain(biomolecule), nil
 }
 
-func (r *SQLXBiomoleculeRepository) Update(id int, biomolecule entities.UpdateBiomoleculeRequest) error {
+func (r *SQLXBiomoleculeRepository) Update(id int, biomolecule entities.UpdateBiomolecule) (*entities.Biomolecule, error) {
+	var updatedBiomolecule models.Biomolecule
 	query := `
 		UPDATE biomolecules
-		SET type = :type, name = :name, sequence = :sequence, description = :description, updated_at = NOW()
-		WHERE id = :id`
+		SET name = :name, sequence = :sequence, description = :description
+		WHERE id = :id
+		RETURNING *`
 
 	params := map[string]interface{}{
 		"id":          id,
 		"name":        biomolecule.Name,
+		"sequence":    biomolecule.Sequence,
 		"description": biomolecule.Description,
 	}
 
-	_, err := r.db.NamedExec(query, params)
+	err := r.db.Get(&updatedBiomolecule, query, params)
 	if err != nil {
-		return fmt.Errorf("ошибка при обновлении биомолекулы: %w", err)
+		return nil, fmt.Errorf("ошибка при обновлении биомолекулы: %w", err)
 	}
 
-	return nil
+	return mappers.MapDatabaseBiomoleculeToDomain(updatedBiomolecule), nil
 }
 
 func (r *SQLXBiomoleculeRepository) Delete(id int) error {

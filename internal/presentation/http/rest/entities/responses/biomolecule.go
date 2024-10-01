@@ -1,7 +1,7 @@
 package responses
 
 import (
-	"biophilia/internal/presentation/http/rest/entities"
+	"biophilia/internal/domain/entities"
 	"time"
 )
 

@@ -5,9 +5,9 @@ import (
 )
 
 type BiomoleculeRepository interface {
-	Add(biomolecule entities.AddBiomoleculeRequest) error
-	GetAll() ([]entities.Biomolecule, error)
+	Add(biomolecule entities.AddBiomolecule) (*entities.Biomolecule, error)
+	GetAll() ([]*entities.Biomolecule, error)
 	GetByID(id int) (*entities.Biomolecule, error)
-	Update(id int, biomolecule entities.UpdateBiomoleculeRequest) error
+	Update(id int, biomolecule entities.UpdateBiomolecule) (*entities.Biomolecule, error)
 	Delete(id int) error
 }
