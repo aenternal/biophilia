@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS biomolecule (
     name VARCHAR(255) NOT NULL UNIQUE,
     sequence TEXT NOT NULL,
     description TEXT,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE OR REPLACE FUNCTION update_timestamp()
@@ -32,5 +32,5 @@ CREATE TABLE IF NOT EXISTS biomolecule_files (
     biomolecule_id INT REFERENCES biomolecule(id) ON DELETE CASCADE,
     file_name TEXT NOT NULL,
     file_type VARCHAR(50),
-    uploaded_at TIMESTAMP DEFAULT NOW()
+    uploaded_at TIMESTAMPTZ DEFAULT NOW()
 );
