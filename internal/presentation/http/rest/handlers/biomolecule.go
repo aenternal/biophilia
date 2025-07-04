@@ -1,10 +1,14 @@
 package handlers
 
 import (
-	"biophilia/internal/domain/services"
+	"biophilia/internal/application/services"
+	"biophilia/internal/domain/entities"
+	"biophilia/internal/infrastructure/mappers"
 	"biophilia/internal/presentation/http/rest/entities/requests"
+	"biophilia/internal/presentation/http/rest/entities/responses"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
 
 type BiomoleculeHandler struct {
@@ -29,10 +33,17 @@ func NewBiomoleculeHandler(service *services.BiomoleculeService) *BiomoleculeHan
 //	@Router /biomolecules [post]
 func (h *BiomoleculeHandler) AddBiomolecule(c echo.Context) error {
 	var biomoleculeRequest requests.AddBiomoleculeRequest
-	if err := c.Bind(biomoleculeRequest); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+	if err := c.Bind(&biomoleculeRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.ErrorResponse{Code: http.StatusBadRequest, Message: err.Error()})
 	}
-	return c.String(http.StatusOK, "Biomolecule added")
+
+	biomolecule := mappers.MapCreateBiomoleculeRequestToDomain(biomoleculeRequest)
+	created, err := h.biomoleculeService.AddBiomolecule(biomolecule)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusCreated, mappers.MapDomainBiomoleculeToResponse(*created))
 }
 
 // GetBiomolecules godoc
@@ -45,7 +56,15 @@ func (h *BiomoleculeHandler) AddBiomolecule(c echo.Context) error {
 //	@Success 200 {object} []responses.Biomolecule
 //	@Router /biomolecules [get]
 func (h *BiomoleculeHandler) GetBiomolecules(c echo.Context) error {
-	return c.String(http.StatusOK, "List of biomolecules")
+	biomolecules, err := h.biomoleculeService.GetBiomolecules()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
+	list := make([]entities.Biomolecule, len(biomolecules))
+	for i, b := range biomolecules {
+		list[i] = *b
+	}
+	return c.JSON(http.StatusOK, mappers.MapDomainBiomoleculesToResponse(list))
 }
 
 // GetBiomoleculeByID godoc
@@ -59,7 +78,15 @@ func (h *BiomoleculeHandler) GetBiomolecules(c echo.Context) error {
 //	@Success 200 {object} responses.Biomolecule
 //	@Router /biomolecules/{id} [get]
 func (h *BiomoleculeHandler) GetBiomoleculeByID(c echo.Context) error {
-	return c.String(http.StatusOK, "Biomolecule by ID")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.ErrorResponse{Code: http.StatusBadRequest, Message: "invalid id"})
+	}
+	biomolecule, err := h.biomoleculeService.GetBiomoleculeByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, mappers.MapDomainBiomoleculeToResponse(*biomolecule))
 }
 
 // UpdateBiomolecule godoc
@@ -74,7 +101,20 @@ func (h *BiomoleculeHandler) GetBiomoleculeByID(c echo.Context) error {
 //	@Success 200 {object} responses.Biomolecule
 //	@Router /biomolecules/{id} [put]
 func (h *BiomoleculeHandler) UpdateBiomolecule(c echo.Context) error {
-	return c.String(http.StatusOK, "Biomolecule updated")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.ErrorResponse{Code: http.StatusBadRequest, Message: "invalid id"})
+	}
+	var biomoleculeRequest requests.UpdateBiomoleculeRequest
+	if err := c.Bind(&biomoleculeRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.ErrorResponse{Code: http.StatusBadRequest, Message: err.Error()})
+	}
+	biomolecule := mappers.MapUpdateBiomoleculeRequestToDomain(biomoleculeRequest)
+	updated, err := h.biomoleculeService.UpdateBiomolecule(id, biomolecule)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
+	return c.JSON(http.StatusOK, mappers.MapDomainBiomoleculeToResponse(*updated))
 }
 
 // DeleteBiomolecule
@@ -88,5 +128,12 @@ func (h *BiomoleculeHandler) UpdateBiomolecule(c echo.Context) error {
 //	@Success 204
 //	@Router /biomolecules/{id} [delete]
 func (h *BiomoleculeHandler) DeleteBiomolecule(c echo.Context) error {
-	return c.String(http.StatusOK, "Biomolecule deleted")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, responses.ErrorResponse{Code: http.StatusBadRequest, Message: "invalid id"})
+	}
+	if err := h.biomoleculeService.DeleteBiomolecule(id); err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
+	return c.NoContent(http.StatusNoContent)
 }

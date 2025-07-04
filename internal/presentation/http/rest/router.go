@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"biophilia/internal/domain/services"
+	"biophilia/internal/application/services"
 	"biophilia/internal/presentation/http/rest/handlers"
 	"github.com/labstack/echo/v4"
 )

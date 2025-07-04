@@ -4,7 +4,6 @@ import (
 	"biophilia/internal/domain/entities"
 	"biophilia/internal/domain/interfaces/data"
 	"biophilia/internal/domain/interfaces/domain"
-	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"strings"
 )
@@ -15,7 +14,7 @@ type BiomoleculeService struct {
 	storageRepository     data.StorageRepository
 	imageService          domain.ImageService
 	blastRepository       data.BlastClient
-	redisClient           *redis.Client
+	cache                 data.RedisCache
 }
 
 func NewBiomoleculeService(
@@ -24,7 +23,7 @@ func NewBiomoleculeService(
 	storageRepository data.StorageRepository,
 	imageService domain.ImageService,
 	blastRepository data.BlastClient,
-	redisClient *redis.Client,
+	cache data.RedisCache,
 ) *BiomoleculeService {
 	return &BiomoleculeService{
 		log:                   log,
@@ -32,15 +31,15 @@ func NewBiomoleculeService(
 		storageRepository:     storageRepository,
 		imageService:          imageService,
 		blastRepository:       blastRepository,
-		redisClient:           redisClient,
+		cache:                 cache,
 	}
 }
 
-func (service *BiomoleculeService) AddBiomolecule(biomolecule entities.AddBiomolecule) error {
+func (service *BiomoleculeService) AddBiomolecule(biomolecule entities.AddBiomolecule) (*entities.Biomolecule, error) {
 	return service.biomoleculeRepository.Add(biomolecule)
 }
 
-func (service *BiomoleculeService) GetBiomolecules() ([]entities.Biomolecule, error) {
+func (service *BiomoleculeService) GetBiomolecules() ([]*entities.Biomolecule, error) {
 	return service.biomoleculeRepository.GetAll()
 }
 
@@ -48,7 +47,7 @@ func (service *BiomoleculeService) GetBiomoleculeByID(id int) (*entities.Biomole
 	return service.biomoleculeRepository.GetByID(id)
 }
 
-func (service *BiomoleculeService) UpdateBiomolecule(id int, biomolecule entities.UpdateBiomolecule) error {
+func (service *BiomoleculeService) UpdateBiomolecule(id int, biomolecule entities.UpdateBiomolecule) (*entities.Biomolecule, error) {
 	return service.biomoleculeRepository.Update(id, biomolecule)
 }
 
