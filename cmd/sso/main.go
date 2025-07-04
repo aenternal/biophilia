@@ -2,10 +2,11 @@ package main
 
 import (
 	_ "biophilia/docs"
+	"biophilia/internal/application/services"
+	"biophilia/internal/data/cache"
 	"biophilia/internal/data/clients"
 	"biophilia/internal/data/repositories/database"
 	"biophilia/internal/data/repositories/storage"
-	"biophilia/internal/domain/services"
 	"biophilia/internal/infrastructure/config"
 	"biophilia/internal/infrastructure/logging"
 	"biophilia/internal/presentation/http/rest"
@@ -79,12 +80,13 @@ func main() {
 		Password: cfg.RedisPassword,
 		DB:       cfg.RedisDB,
 	})
+	cacheRepo := cache.NewRedisCache(redisClient)
 
 	// Инициализация blast-репозитория
 	blastRepository := clients.NewEBIBlastClient()
 
 	// Инициализация сервиса с бизнес-логикой
-	biomoleculeService := services.NewBiomoleculeService(logger, dbRepo, minioRepo, imageService, blastRepository, redisClient)
+	biomoleculeService := services.NewBiomoleculeService(logger, dbRepo, minioRepo, imageService, blastRepository, cacheRepo)
 
 	// Инициализация Echo
 	e := echo.New()
